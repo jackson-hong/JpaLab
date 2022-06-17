@@ -16,6 +16,13 @@ import java.util.List;
 import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.LAZY;
 
+@NamedEntityGraph(
+        name = "user-entity-graph-with-boards-likes",
+        attributeNodes = {
+                @NamedAttributeNode("boards"),
+                @NamedAttributeNode("likes"),
+        }
+)
 @Entity(name = "USER_MST")
 @Getter
 @AllArgsConstructor
@@ -43,10 +50,10 @@ public class User extends BaseEntity {
     private YnType quit;
 
     @OneToMany(mappedBy = "user", cascade = ALL, fetch = LAZY)
-    private List<Board> boardList;
+    private List<Board> boards;
 
     @OneToMany(mappedBy = "user", cascade = ALL, fetch = LAZY)
-    private List<Like> likeList;
+    private List<Like> likes;
 
     public static User buildAnonymousUser(){
         return User.builder()

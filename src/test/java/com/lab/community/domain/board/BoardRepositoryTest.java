@@ -2,16 +2,13 @@ package com.lab.community.domain.board;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.lab.community.config.jpa.QueryDslConfig;
 import com.lab.community.domain.user.UserQueryRepository;
 import com.lab.community.domain.user.UserRepository;
-import com.lab.community.utils.MemoryAppender;
+import com.lab.community.service.board.BoardService;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
@@ -27,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @DataJpaTest
 @Slf4j
 @TestPropertySource(properties = "spring.jpa.properties.hibernate.default_batch_fetch_size=1000")
-@Import({BoardQueryRepository.class, QueryDslConfig.class, UserQueryRepository.class})
+@Import({BoardQueryRepository.class, QueryDslConfig.class, UserQueryRepository.class, BoardService.class})
 class BoardRepositoryTest {
 
     @Autowired
@@ -42,30 +39,40 @@ class BoardRepositoryTest {
     @Autowired
     private UserQueryRepository userQueryRepository;
 
-    private MemoryAppender memoryAppender;
+    @Autowired
+    private BoardService boardService;
 
-    private final String LOGGER_NAME = "ropoTest";
+    private ListAppender listAppender;
 
-    @BeforeEach
-    public void setup() {
-        Logger logger = (Logger) LoggerFactory.getLogger(LOGGER_NAME);
-        memoryAppender = new MemoryAppender();
-        memoryAppender.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
-        logger.setLevel(Level.INFO);
-        logger.addAppender(memoryAppender);
-        memoryAppender.start();
-    }
+//    @BeforeEach
+//    public void setup() {
+//        Logger logger = (Logger) LoggerFactory.getLogger(BoardService.class);
+//        memoryAppender = new ListAppender<>();
+//        memoryAppender.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
+//        logger.setLevel(Level.ALL);
+//        logger.addAppender(memoryAppender);
+//        memoryAppender.start();
+//    }
 
 
     @Test
     @DisplayName("Entity Graph Test")
-    void testEntityGraph() throws JsonProcessingException {
+    void testEntityGraph() {
+
+        listAppender = new ListAppender<>();
+        Logger logger = (Logger) LoggerFactory.getLogger(BoardService.class);
+        logger.addAppender(listAppender);
+        listAppender.start();
 
         // GIVEN
-        boardRepository.findAll();
+        boardService.findAllBoards();
+        List<ILoggingEvent> testLogs = listAppender.list;
+        String message = testLogs.get(0).getFormattedMessage();
+        Level level = testLogs.get(0).getLevel();
+
 
         //WHEN & THEN
-        System.out.println();
+        System.out.println(testLogs.get(0));
     }
 
     @Test

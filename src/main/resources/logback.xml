@@ -6,9 +6,6 @@
             </Pattern>
         </encoder>
     </appender>
-    <logger name="org.hibernate.sql" level="DEBUG" />
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" />
-    <logger name="com.zaxxer.hikari" level="DEBUG" />
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>

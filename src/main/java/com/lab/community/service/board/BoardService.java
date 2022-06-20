@@ -1,5 +1,6 @@
 package com.lab.community.service.board;
 
+import com.lab.community.common.annotation.QueryCounter;
 import com.lab.community.common.code.ResultCode;
 import com.lab.community.common.exception.LabException;
 import com.lab.community.domain.board.Board;
@@ -37,8 +38,9 @@ public class BoardService {
         return boardRepository.findByBoardIdAndUser(boardId, user).orElseThrow(() -> new LabException(ResultCode.RESULT_5002));
     }
 
+    @QueryCounter
     public List<Board> findAllBoards(){
-        log.debug("LOG TEST");
+        boardQueryRepository.findAllBoardsWithLikesAndUsers();
         return boardRepository.findAll();
     }
 

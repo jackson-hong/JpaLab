@@ -7,7 +7,8 @@ import com.lab.community.domain.board.BoardQueryRepository;
 import com.lab.community.domain.board.BoardRepository;
 import com.lab.community.domain.user.User;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class BoardService {
+
+    private final static Logger log = LoggerFactory.getLogger(BoardService.class);
 
     private final BoardRepository boardRepository;
     private final BoardQueryRepository boardQueryRepository;
@@ -36,6 +38,7 @@ public class BoardService {
     }
 
     public List<Board> findAllBoards(){
+        log.debug("LOG TEST");
         return boardRepository.findAll();
     }
 

@@ -9,21 +9,24 @@ import com.lab.community.domain.user.UserQueryRepository;
 import com.lab.community.domain.user.UserRepository;
 import com.lab.community.service.board.BoardService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @Slf4j
-@TestPropertySource(properties = "spring.jpa.properties.hibernate.default_batch_fetch_size=1000")
 @Import({BoardQueryRepository.class, QueryDslConfig.class, UserQueryRepository.class, BoardService.class})
 class BoardRepositoryTest {
 
@@ -42,37 +45,29 @@ class BoardRepositoryTest {
     @Autowired
     private BoardService boardService;
 
-    private ListAppender listAppender;
+    private ListAppender<ILoggingEvent> listAppender;
 
-//    @BeforeEach
-//    public void setup() {
-//        Logger logger = (Logger) LoggerFactory.getLogger(BoardService.class);
-//        memoryAppender = new ListAppender<>();
-//        memoryAppender.setContext((LoggerContext) LoggerFactory.getILoggerFactory());
-//        logger.setLevel(Level.ALL);
-//        logger.addAppender(memoryAppender);
-//        memoryAppender.start();
-//    }
+    @BeforeEach
+    public void setup() {
+        listAppender = new ListAppender<>();
+        Logger logger = (Logger) LoggerFactory.getLogger("org.hibernate.SQL");
+        logger.setLevel(Level.DEBUG);
+        logger.addAppender(listAppender);
+        listAppender.start();
+    }
 
 
     @Test
     @DisplayName("Entity Graph Test")
     void testEntityGraph() {
 
-        listAppender = new ListAppender<>();
-        Logger logger = (Logger) LoggerFactory.getLogger(BoardService.class);
-        logger.addAppender(listAppender);
-        listAppender.start();
-
         // GIVEN
         boardService.findAllBoards();
-        List<ILoggingEvent> testLogs = listAppender.list;
-        String message = testLogs.get(0).getFormattedMessage();
-        Level level = testLogs.get(0).getLevel();
-
 
         //WHEN & THEN
-        System.out.println(testLogs.get(0));
+        List<ILoggingEvent> testLogs = listAppender.list;
+        assertThat(testLogs.size()).isEqualTo(1);
+
     }
 
     @Test

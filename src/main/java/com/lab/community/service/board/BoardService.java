@@ -40,7 +40,6 @@ public class BoardService {
 
     @QueryCounter
     public List<Board> findAllBoards(){
-        boardQueryRepository.findAllBoardsWithLikesAndUsers();
         return boardRepository.findAll();
     }
 

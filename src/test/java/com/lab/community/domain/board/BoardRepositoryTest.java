@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.test.context.TestPropertySource;
 
@@ -27,13 +28,14 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
+//@SpringBootTest
+@DataJpaTest
 @Slf4j
-//@Import({BoardQueryRepository.class,
-//        QueryDslConfig.class,
-//        UserQueryRepository.class,
-//        BoardService.class,
-//        QueryCounterAspect.class})
+@Import({BoardQueryRepository.class,
+        QueryDslConfig.class,
+        UserQueryRepository.class,
+        BoardService.class,
+        QueryCounterAspect.class})
 class BoardRepositoryTest {
 
     @Autowired
@@ -53,14 +55,14 @@ class BoardRepositoryTest {
 
     private ListAppender<ILoggingEvent> listAppender;
 
-//    @BeforeEach
-//    public void setup() {
-//        listAppender = new ListAppender<>();
-//        Logger logger = (Logger) LoggerFactory.getLogger("org.hibernate.SQL");
-//        logger.setLevel(Level.DEBUG);
-//        logger.addAppender(listAppender);
-//        listAppender.start();
-//    }
+    @BeforeEach
+    public void setup() {
+        listAppender = new ListAppender<>();
+        Logger logger = (Logger) LoggerFactory.getLogger("org.hibernate.SQL");
+        logger.setLevel(Level.DEBUG);
+        logger.addAppender(listAppender);
+        listAppender.start();
+    }
 
 
     @Test
@@ -70,9 +72,9 @@ class BoardRepositoryTest {
         // GIVEN
         boardService.findAllBoards();
 
-//        //WHEN & THEN
-//        List<ILoggingEvent> testLogs = listAppender.list;
-//        assertThat(testLogs.size()).isEqualTo(1);
+        //WHEN & THEN
+        List<ILoggingEvent> testLogs = listAppender.list;
+        assertThat(testLogs.size()).isEqualTo(1);
 
     }
 
@@ -80,6 +82,10 @@ class BoardRepositoryTest {
     @DisplayName("Fetch Join Test")
     void testFetchJoin(){
         List<Board> boardList = boardQueryRepository.findAllBoardsWithLikesAndUsers();
+
+        //WHEN & THEN
+        List<ILoggingEvent> testLogs = listAppender.list;
+        assertThat(testLogs.size()).isEqualTo(1);
     }
 
 
@@ -94,7 +100,7 @@ class BoardRepositoryTest {
     @Test
     @DisplayName("Graph Entity Join Test")
     void testGraphEntityJoinTest(){
-        assertThrows(IllegalArgumentException.class, () ->  userRepository.findAll());
+        assertThrows(InvalidDataAccessApiUsageException.class, () ->  userRepository.findAll());
     }
 
 }
